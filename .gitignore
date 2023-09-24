@@ -1,0 +1,13 @@
+#Python Cache
+__pycache__/
+
+# Environments
+.venv/
+.conda/
+
+# Dataset 
+data/*
+!data/.gitkeep
+
+# IDE
+.vscode/
