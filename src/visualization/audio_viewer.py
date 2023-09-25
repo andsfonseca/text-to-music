@@ -49,7 +49,7 @@ class AudioViewer():
         plt.show()
 
     @staticmethod
-    def get_spectogram(spectrogram: ArrayLike, sample_rate: float):
+    def get_spectrogram(spectrogram: ArrayLike, sample_rate: float):
         """
         Generates a visualization for the spectrogram
 
