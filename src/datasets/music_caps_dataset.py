@@ -108,7 +108,7 @@ class MusicCapsDataset(Dataset):
         
         return path
     
-    def __clip(self, id, start_time, duration, delete_temporary = True):
+    def __clip(self, id : str, start_time : float, duration : float, delete_temporary = True):
         """
         Cuts the song from a starting time and duration
 
