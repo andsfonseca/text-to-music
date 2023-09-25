@@ -36,7 +36,7 @@ class MusicCapsDataset(Dataset):
             remove_failures (bool): Remove dataset download failures. Default: True.
 
         Returns:
-            torch.Tensor: The MusicCaps dataset
+            Dataset: The MusicCaps dataset
         """
         super().generate()
         dataset = load_dataset('google/MusicCaps')
