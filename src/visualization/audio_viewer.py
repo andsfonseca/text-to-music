@@ -47,3 +47,20 @@ class AudioViewer():
 
         plt.tight_layout()
         plt.show()
+
+    @staticmethod
+    def get_spectrogram(spectrogram: ArrayLike, sample_rate: float):
+        """
+        Generates a visualization for the spectrogram
+
+        Args:
+            spectrogram (ArrayLike): Spectrogram Information.
+            sample_rate (float): Sampling rate.
+        """
+        plt.figure(figsize=(10, 4))
+        librosa.display.specshow(librosa.power_to_db(
+            spectrogram, ref=np.max), sr=sample_rate, y_axis='hz', x_axis='time', hop_length=200)
+        plt.title('Spectrogram')
+        plt.colorbar(format='%+2.0f dB')
+        plt.tight_layout()
+        plt.show()
