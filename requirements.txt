@@ -1,9 +1,12 @@
-datasets
+datasets==2.14.5
 git+https://github.com/ytdl-org/youtube-dl.git@66ab0814c4baa2dc79c2dd5287bc0ad61a37c5b9
-ffmpeg-python
-static-ffmpeg
-torch
-torchvision
-torchaudio
+ffmpeg-python==0.2.0
+static-ffmpeg==2.5
+librosa==0.10.1
+matplotlib==3.8.0
+numpy==1.24.1
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
 # If you are using GPU, Install pytorch using the following command:
 # > pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
