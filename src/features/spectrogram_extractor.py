@@ -3,6 +3,7 @@ import torchaudio
 
 from .waveform_extractor import WaveformExtractor
 
+
 class SpectrogramExtractor(WaveformExtractor):
     """
     SpectrogramExtractor
@@ -18,10 +19,14 @@ class SpectrogramExtractor(WaveformExtractor):
     def __init__(self, dataset: Dataset, audio_column):
         """Initializes a new SpectrogramExtractor
         """
-        super().__init__(dataset, audio_column)
+        super().__init__(dataset, audio_column=audio_column, name="Spectrogram")
 
     def __getitem__(self, idx):
-        waveform, sample_rate = super().__getitem__(idx)
-        spectrogram = torchaudio.transforms.MelSpectrogram(sample_rate)(waveform)
+        waveform = super().__getitem__(idx)
 
-        return spectrogram, sample_rate
+        # Get the audio data
+        audio_data = self.dataset[idx][self.audio_column]
+
+        spectrogram = torchaudio.transforms.MelSpectrogram(
+            audio_data['sampling_rate'])(waveform)
+        return spectrogram
