@@ -25,6 +25,8 @@ FMA_METADATA_IGNORED_FILES = [
     "fma_metadata/README.txt"
 ]
 
+FMA_SMALL_MUSICS_CORRUPTED = [133297, 108925]
+
 
 class FMADasasetRepository(str, Enum):
     SMALL = 'https://os.unil.cloud.switch.ch/fma/fma_small.zip'
@@ -44,11 +46,12 @@ class FMADataset(Dataset):
         dataset_size (FMADasasetRepository): The subset of musics. Default: 'SMALL'.
     """
 
-    def __init__(self, dataset_size=FMADasasetRepository.SMALL):
+    def __init__(self, dataset_size=FMADasasetRepository.SMALL, ignored_tracks=FMA_SMALL_MUSICS_CORRUPTED):
         """Initializes a new FMADataset.
         """
         super().__init__("FMA")
         self.dataset_size = dataset_size
+        self.ignored_tracks = ignored_tracks
 
     def generate(self, num_proc=1, batch_size=100, remove_failures=True):
         """
@@ -67,20 +70,25 @@ class FMADataset(Dataset):
         self.__extract(self.__download_metadata(), FMA_METADATA_IGNORED_FILES)
         self.__extract(self.__download_dataset())
 
-        df = pd.read_csv(f"{self.dataset_dir}/raw/fma_metadata/tracks.csv", index_col=0, header=[0, 1])
+        df = pd.read_csv(f"{self.get_raw_folder()}/fma_metadata/tracks.csv",
+                         index_col=0, header=[0, 1])
         df.columns = [f'{i}/{j}' for i, j in df.columns]
 
         dataset = HFDataset.from_pandas(df)
 
-        audio_paths = self.__get_all_mp3(f"{self.dataset_dir}/raw/fma_{self.dataset_size.name.lower()}")
+        audio_paths = self.__get_all_mp3(
+            f"{self.get_raw_folder()}/fma_{self.dataset_size.name.lower()}")
+
         def process(sample):
             sample['audio'] = ""
-            sample['online'] = str(sample['track_id']) in audio_paths
+            sample['online'] = str(
+                sample['track_id']) in audio_paths and sample['track_id'] not in self.ignored_tracks
             if sample['online']:
-                sample['audio'] = str(audio_paths[str(sample['track_id'])].absolute())
-            
+                sample['audio'] = str(
+                    audio_paths[str(sample['track_id'])].absolute())
+
             return sample
-        
+
         dataset = dataset.map(
             process,
             num_proc=num_proc,
@@ -89,7 +97,7 @@ class FMADataset(Dataset):
         )
 
         if remove_failures:
-            dataset = dataset.filter(lambda sample : sample['online'])
+            dataset = dataset.filter(lambda sample: sample['online'])
 
         dataset = dataset.cast_column('audio', Audio(sampling_rate=44100))
         dataset = dataset.with_format("torch")
@@ -107,14 +115,14 @@ class FMADataset(Dataset):
         type = self.dataset_size.name
         url = self.dataset_size.value
 
-        output_path = f"{self.dataset_dir}/raw/{type}.zip"
+        output_path = f"{self.get_raw_folder()}/{type}.zip"
 
         path = Path(output_path)
 
         if not path.exists():
             path.parent.mkdir(exist_ok=True, parents=True)
             with GenericProgressBar(unit='B', unit_scale=True,
-                                     miniters=1, desc=url.split('/')[-1]) as t:
+                                    miniters=1, desc=url.split('/')[-1]) as t:
                 urllib.request.urlretrieve(
                     url, filename=output_path, reporthook=t.update_to)
 
@@ -129,20 +137,20 @@ class FMADataset(Dataset):
 
         """
 
-        output_path = f"{self.dataset_dir}/raw/metadata.zip"
+        output_path = f"{self.get_raw_folder()}/metadata.zip"
 
         path = Path(output_path)
 
         if not path.exists():
             path.parent.mkdir(exist_ok=True, parents=True)
             with GenericProgressBar(unit='B', unit_scale=True,
-                                     miniters=1, desc=FMA_METADATA_URL.split('/')[-1]) as t:
+                                    miniters=1, desc=FMA_METADATA_URL.split('/')[-1]) as t:
                 urllib.request.urlretrieve(
                     FMA_METADATA_URL, filename=output_path, reporthook=t.update_to)
 
         return output_path
 
-    def __extract(self, path, ignored_files = []):
+    def __extract(self, path: str, ignored_files=[]):
         """
         Extract a file.
 

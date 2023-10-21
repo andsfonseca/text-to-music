@@ -5,6 +5,7 @@ DATA_ROOT_FOLDER = "data"
 """Default folder for saving dataset assets
 """
 
+
 class Dataset(ABC):
     """
     Dataset
@@ -17,12 +18,12 @@ class Dataset(ABC):
         name (str): The name of the dataset. Default: EmptyDataset.
     """
 
-    def __init__(self, name = "EmptyDataset"):
+    def __init__(self, name="EmptyDataset"):
         """Initializes a new Dataset
         """
         self.name = name
         self.dataset_dir = f"{DATA_ROOT_FOLDER}/{name}"
-    
+
     @abstractmethod
     def generate(self):
         """
@@ -34,3 +35,30 @@ class Dataset(ABC):
         dir.mkdir(exist_ok=True, parents=True)
 
         return None
+
+    def get_raw_folder(self):
+        """
+        Returns the path to the raw folder for the dataset.
+
+        Returns:
+            str: The path to the raw folder.
+        """
+        return f"{self.dataset_dir}/raw"
+
+    def get_interim_folder(self):
+        """
+        Returns the path to the interim folder for the dataset.
+
+        Returns:
+            str: The path to the interim folder.
+        """
+        return f"{self.dataset_dir}/interim"
+
+    def get_processed_folder(self):
+        """
+        Returns the path to the processed folder for the dataset.
+
+        Returns:
+            str: The path to the processed folder.
+        """
+        return f"{self.dataset_dir}/processed"
