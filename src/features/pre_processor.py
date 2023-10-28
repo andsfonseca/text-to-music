@@ -41,7 +41,7 @@ class PreProcessor():
         """
         return self.transformation(self.dataset)
 
-    def get_train_test_split(self, test_size=0.2, random_state=78563, path: str = "", save_splt_sets=True):
+    def get_train_test_split(self, test_size=0.2, random_state=78563, path: str = "", save_split_sets=True):
         """
         Generates train/test indexes and splits the dataset into train and test subsets.
 
@@ -88,15 +88,15 @@ class PreProcessor():
 
             train_subset = Subset(transformed_data, train_idx if type(
                 train_idx) == list else train_idx.tolist())
-            train_data = [data.to(self.device).cpu().numpy() for data in tqdm(
-                train_subset, desc=f"Generating train subset [{transformed_data.name}]")]
+            train_data = np.array([data.to(self.device).cpu().numpy() for data in tqdm(
+                train_subset, desc=f"Generating train subset [{transformed_data.name}]")])
 
             test_subset = Subset(transformed_data, test_idx if type(
                 test_idx) == list else test_idx.tolist())
-            test_data = [data.to(self.device).cpu().numpy() for data in tqdm(
-                test_subset, desc=f"Generating test subset [{transformed_data.name}]")]
+            test_data = np.array([data.to(self.device).cpu().numpy() for data in tqdm(
+                test_subset, desc=f"Generating test subset [{transformed_data.name}]")])
 
-            if (len(path) != 0 and save_splt_sets):
+            if (len(path) != 0 and save_split_sets):
                 print("Saving train/test splits...")
 
                 train_subset_path.parent.mkdir(exist_ok=True, parents=True)

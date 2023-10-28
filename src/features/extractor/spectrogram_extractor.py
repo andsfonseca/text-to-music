@@ -13,19 +13,19 @@ class SpectrogramExtractor(WaveformExtractor):
 
     Args:
         dataset (Dataset): The dataset that contains the audio.
-        audio_column (str): The name of the audio column
+        column (str): The name of the audio column
     """
 
-    def __init__(self, dataset: Dataset, audio_column):
+    def __init__(self, dataset: Dataset, column):
         """Initializes a new SpectrogramExtractor
         """
-        super().__init__(dataset, audio_column=audio_column, name="Spectrogram")
+        super().__init__(dataset, column=column, name="Spectrogram")
 
     def __getitem__(self, idx):
         waveform = super().__getitem__(idx)
 
         # Get the audio data
-        audio_data = self.dataset[idx][self.audio_column]
+        audio_data = self.dataset[idx][self.column]
 
         spectrogram = torchaudio.transforms.MelSpectrogram(
             audio_data['sampling_rate'])(waveform)

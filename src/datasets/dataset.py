@@ -43,7 +43,9 @@ class Dataset(ABC):
         Returns:
             str: The path to the raw folder.
         """
-        return f"{self.dataset_dir}/raw"
+        raw_dir = f"{self.dataset_dir}/raw"
+        Path(raw_dir).mkdir(exist_ok=True, parents=True)
+        return raw_dir
 
     def get_interim_folder(self):
         """
@@ -52,7 +54,9 @@ class Dataset(ABC):
         Returns:
             str: The path to the interim folder.
         """
-        return f"{self.dataset_dir}/interim"
+        interim_dir = f"{self.dataset_dir}/interim"
+        Path(interim_dir).mkdir(exist_ok=True, parents=True)
+        return interim_dir
 
     def get_processed_folder(self):
         """
@@ -61,4 +65,6 @@ class Dataset(ABC):
         Returns:
             str: The path to the processed folder.
         """
-        return f"{self.dataset_dir}/processed"
+        processed_dir = f"{self.dataset_dir}/processed"
+        Path(processed_dir).mkdir(exist_ok=True, parents=True)
+        return processed_dir

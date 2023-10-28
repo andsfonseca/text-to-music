@@ -8,7 +8,7 @@ from datasets import Audio, Dataset as HFDataset
 import pandas as pd
 
 from .dataset import Dataset
-from ..utils import GenericProgressBar
+from ..utils.ui import GenericProgressBar
 
 FMA_METADATA_URL = 'https://os.unil.cloud.switch.ch/fma/fma_metadata.zip'
 
