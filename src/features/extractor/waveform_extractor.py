@@ -13,7 +13,7 @@ class WaveformExtractor(Extractor):
 
     Args:
         dataset (Dataset): The dataset that contains the audio.
-        audio_column (str): The name of the audio column
+        column (str): The name of the audio column
         time_fixed (int): The fixed time duration of the waveform. When crop_length is not 0, 
         the waveform is cropped.
         crop_length (int): The length of the waveform. When time_fixed is not 0, the waveform 

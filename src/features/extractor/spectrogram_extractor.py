@@ -13,7 +13,7 @@ class SpectrogramExtractor(WaveformExtractor):
 
     Args:
         dataset (Dataset): The dataset that contains the audio.
-        audio_column (str): The name of the audio column
+        column (str): The name of the audio column
     """
 
     def __init__(self, dataset: Dataset, column):

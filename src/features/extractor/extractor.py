@@ -11,6 +11,8 @@ class Extractor(torch.utils.data.Dataset):
     A abstract class that extracts the information from a dataset
 
     Args:
+        dataset (Dataset): The dataset that contains the audio.
+        column (str): The name of the audio column
         name (str): The name of the extractor. Default: "EmptyExtractor".
     """
 
