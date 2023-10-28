@@ -62,83 +62,8 @@ class MusicCapsDataset(Dataset):
         super().generate()
         dataset = load_dataset('google/MusicCaps')
 
-        def process(samples):
-
-            columns = list(samples.keys())
-            keys_size = len(samples[columns[0]])
-
-            result_samples = {key: [] for key in columns}
-            result_samples['audio'] = []
-            result_samples['online'] = []
-
-            # for sample in samples:
-            for i in trange(keys_size, desc="Applying on batch"):
-
-                audio_output_path = f"{self.get_raw_folder()}/{samples['ytid'][i]}.{self.format}"
-                online = Path(audio_output_path).exists()
-
-                if not online:
-                    temp_path = "undefined"
-                    try:
-                        # Try download the video
-                        temp_path = self.__download_youtube_clip(
-                            samples['ytid'][i], self.sampling_rate)
-                    except:
-                        pass
-                    finally:
-                        # Check if music is downloaded
-                        online = Path(temp_path).exists()
-
-                    if online:
-                        self.__clip(samples['ytid'][i],
-                                    samples['start_s'][i],
-                                    samples['end_s'][i] - samples['start_s'][i])
-                    else:
-                        print(f"Failed to download '{samples['ytid'][i]}'")
-
-                if online and self.crop_length >= 3:
-                    splited_paths = self.__split(
-                        samples['ytid'][i], samples['end_s'][i] - samples['start_s'][i], self.crop_length)
-
-                    for j in trange(len(splited_paths), desc=f"Spliting [{self.crop_length}s]", leave=False):
-
-                        # Copy current sample
-                        split_sample = {}
-                        for key in columns:
-                            split_sample[key] = samples[key][i]
-
-                        # Update aspect_list and caption
-                        split_sample['aspect_list'] = split_sample['aspect_list'][:-1] + \
-                            f", '{j+1} of {len(splited_paths)}'" + \
-                            split_sample['aspect_list'][-1:]
-                        split_sample['caption'] = split_sample['caption'] + \
-                            f" {j+1} of {len(splited_paths)}."
-
-                        # Add new columns
-                        split_sample['audio'] = splited_paths[j]
-                        split_sample['online'] = online
-
-                        # Add to batch
-                        for key in result_samples.keys():
-                            result_samples[key].append(split_sample[key])
-                else:
-
-                    # Copy current sample
-                    modified_sample = {}
-                    for key in columns:
-                        modified_sample[key] = samples[key][i]
-
-                    # Add new columns
-                    modified_sample['audio'] = audio_output_path
-                    modified_sample['online'] = online
-
-                    for key in result_samples.keys():
-                        result_samples[key].append(modified_sample[key])
-
-            return result_samples
-
         dataset = dataset.map(
-            process,
+            self.__process,
             batched=True,
             num_proc=num_proc,
             writer_batch_size=batch_size,
@@ -155,6 +80,90 @@ class MusicCapsDataset(Dataset):
         dataset = dataset.with_format("torch")
 
         return dataset['train']
+
+    def __process(self, samples):
+        """
+        Process the given samples and generate modified samples.
+        
+        Args:
+            samples (dict): A dictionary containing the samples to be processed.
+            
+        Returns:
+            dict: A dictionary containing the modified samples.
+        """
+
+        columns = list(samples.keys())
+        keys_size = len(samples[columns[0]])
+
+        result_samples = {key: [] for key in columns}
+        result_samples['audio'] = []
+        result_samples['online'] = []
+
+        # for sample in samples:
+        for i in range(keys_size):
+
+            audio_output_path = f"{self.get_raw_folder()}/{samples['ytid'][i]}.{self.format}"
+            online = Path(audio_output_path).exists()
+
+            if not online:
+                temp_path = "undefined"
+                try:
+                    # Try download the video
+                    temp_path = self.__download_youtube_clip(
+                        samples['ytid'][i], self.sampling_rate)
+                except:
+                    pass
+                finally:
+                    # Check if music is downloaded
+                    online = Path(temp_path).exists()
+
+                if online:
+                    self.__clip(samples['ytid'][i],
+                                samples['start_s'][i],
+                                samples['end_s'][i] - samples['start_s'][i])
+                else:
+                    print(f"Failed to download '{samples['ytid'][i]}'")
+
+            if online and self.crop_length >= 3:
+                splited_paths = self.__split(
+                    samples['ytid'][i], samples['end_s'][i] - samples['start_s'][i], self.crop_length)
+
+                for j in range(len(splited_paths)):
+
+                    # Copy current sample
+                    split_sample = {}
+                    for key in columns:
+                        split_sample[key] = samples[key][i]
+
+                    # Update aspect_list and caption
+                    split_sample['aspect_list'] = split_sample['aspect_list'][:-1] + \
+                        f", '{j+1} of {len(splited_paths)}'" + \
+                        split_sample['aspect_list'][-1:]
+                    split_sample['caption'] = split_sample['caption'] + \
+                        f" {j+1} of {len(splited_paths)}."
+
+                    # Add new columns
+                    split_sample['audio'] = splited_paths[j]
+                    split_sample['online'] = online
+
+                    # Add to batch
+                    for key in result_samples.keys():
+                        result_samples[key].append(split_sample[key])
+            else:
+
+                # Copy current sample
+                modified_sample = {}
+                for key in columns:
+                    modified_sample[key] = samples[key][i]
+
+                # Add new columns
+                modified_sample['audio'] = audio_output_path
+                modified_sample['online'] = online
+
+                for key in result_samples.keys():
+                    result_samples[key].append(modified_sample[key])
+
+        return result_samples
 
     def __download_youtube_clip(self, id: str, sampling_rate=48000):
         """
@@ -212,14 +221,14 @@ class MusicCapsDataset(Dataset):
     def __split(self, id: str, total_duration: float, split_time: float, preserve_last=True):
         """
         Splits an audio file into multiple segments based on the given split time.
-        
+
         Args:
             id (str): The ID of the audio file.
             total_duration (float): The total duration of the audio file in seconds.
             split_time (float): The duration of each split segment in seconds.
             preserve_last (bool, optional): Whether to preserve the last segment if its duration is less than 
             the split time. Defaults to True.
-        
+
         Returns:
             List[str]: A list of paths to the output split segments.
         """
@@ -242,6 +251,6 @@ class MusicCapsDataset(Dataset):
 
             if (not Path(output_path).exists()):
                 ffmpeg.input(audio_path).output(
-                    output_path, ss=start_time, t=split_time).run(quiet=True)
+                    output_path, ss=start_time, t=split_time).run(quiet=True, capture_stdout=True, capture_stderr=True)
 
         return result_paths
