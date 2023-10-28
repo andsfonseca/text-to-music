@@ -88,13 +88,13 @@ class PreProcessor():
 
             train_subset = Subset(transformed_data, train_idx if type(
                 train_idx) == list else train_idx.tolist())
-            train_data = [data.to(self.device).cpu().numpy() for data in tqdm(
-                train_subset, desc=f"Generating train subset [{transformed_data.name}]")]
+            train_data = np.array([data.to(self.device).cpu().numpy() for data in tqdm(
+                train_subset, desc=f"Generating train subset [{transformed_data.name}]")])
 
             test_subset = Subset(transformed_data, test_idx if type(
                 test_idx) == list else test_idx.tolist())
-            test_data = [data.to(self.device).cpu().numpy() for data in tqdm(
-                test_subset, desc=f"Generating test subset [{transformed_data.name}]")]
+            test_data = np.array([data.to(self.device).cpu().numpy() for data in tqdm(
+                test_subset, desc=f"Generating test subset [{transformed_data.name}]")])
 
             if (len(path) != 0 and save_split_sets):
                 print("Saving train/test splits...")
