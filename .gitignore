@@ -14,4 +14,4 @@ data/*
 
 models/
 !models/.gitkeep
-generated_music.wav
+final_autoencoder_model.pth
