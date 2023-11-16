@@ -1,4 +1,4 @@
-#Python Cache
+# Python Cache
 __pycache__/
 
 # Environments
@@ -9,9 +9,12 @@ __pycache__/
 data/*
 !data/.gitkeep
 
+# Models
+models/
+!models/.gitkeep
+
 # IDE
 .vscode/
 
-models/
-!models/.gitkeep
-final_autoencoder_model.pth
+# Windows
+desktop.ini

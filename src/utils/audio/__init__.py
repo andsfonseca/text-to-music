@@ -1,1 +1,1 @@
-from .audio_generator import AudioGenerator
+from .audio import Audio

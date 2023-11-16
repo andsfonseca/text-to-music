@@ -1,1 +1,3 @@
-from .model_trainer import ModelTrainer
+import imp
+
+from .model_checkpoint import ModelCheckpoint

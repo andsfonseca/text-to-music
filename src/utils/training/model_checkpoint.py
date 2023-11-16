@@ -3,18 +3,19 @@ import torch
 import logging
 from datetime import datetime
 
-"""
+class ModelCheckpoint:
+    """
     ModelCheckpoint
     =======
     A class used to save and load checkpoints of a model during training.
     
     Args:
        filename (str): The name of the file where the checkpoint will be saved.
-"""
-class ModelCheckpoint:
+
+    """
+
     def __init__(self, model_name):
-        """
-           Initialize the ModelCheckpoint
+        """ Initialize the ModelCheckpoint
         """
         self.base_path = f"models/{model_name}"
         if not os.path.exists(self.base_path):
@@ -22,13 +23,13 @@ class ModelCheckpoint:
 
     def save(self, model, optimizer, epoch, batch_index, loss):
         """
-            Saves the current state of the model, optimizer, epoch, batch index, and loss to a checkpoint file.
-            Args:
-                model (torch.nn.Module): The model to be saved.
-                optimizer (torch.optim.Optimizer): The optimizer to be saved.
-                epoch (int): The current epoch.
-                batch_index (int): The current batch index.
-                loss (float): The current loss.
+        Saves the current state of the model, optimizer, epoch, batch index, and loss to a checkpoint file.
+        Args:
+            model (torch.nn.Module): The model to be saved.
+            optimizer (torch.optim.Optimizer): The optimizer to be saved.
+            epoch (int): The current epoch.
+            batch_index (int): The current batch index.
+            loss (float): The current loss.
         """
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         save_path = f"{self.base_path}/{timestamp}"
@@ -57,7 +58,7 @@ class ModelCheckpoint:
                 start_batch_index (int): The batch index from the checkpoint.
                 loss (float): The loss from the checkpoint.
         """
-        latest_checkpoint = self._find_latest_checkpoint()
+        latest_checkpoint = self.__find_latest_checkpoint()
         if latest_checkpoint:
             print(f"Retomando do checkpoint: {latest_checkpoint}")
             try:
@@ -75,7 +76,7 @@ class ModelCheckpoint:
             print("Nenhum checkpoint encontrado.")
             return 0, 0, None
 
-    def _find_latest_checkpoint(self):
+    def __find_latest_checkpoint(self):
         all_checkpoints = [os.path.join(dirpath, f) 
                            for dirpath, dirnames, files in os.walk(self.base_path) 
                            for f in files if f.endswith('.ckpt')]
