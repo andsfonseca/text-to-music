@@ -1,4 +1,4 @@
-#Python Cache
+# Python Cache
 __pycache__/
 
 # Environments
@@ -9,5 +9,12 @@ __pycache__/
 data/*
 !data/.gitkeep
 
+# Models
+models/
+!models/.gitkeep
+
 # IDE
 .vscode/
+
+# Windows
+desktop.ini
