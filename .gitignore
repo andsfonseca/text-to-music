@@ -10,7 +10,7 @@ data/*
 !data/.gitkeep
 
 # Models
-models/
+models/*
 !models/.gitkeep
 
 # IDE
