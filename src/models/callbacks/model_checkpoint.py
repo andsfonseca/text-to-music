@@ -1,16 +1,18 @@
 import os
-import torch
-import logging
 from datetime import datetime
+from pathlib import Path
+
+import torch
+
 
 class ModelCheckpoint:
     """
     ModelCheckpoint
     =======
     A class used to save and load checkpoints of a model during training.
-    
+
     Args:
-       filename (str): The name of the file where the checkpoint will be saved.
+        model_name (str): The name of the model.
 
     """
 
@@ -18,8 +20,7 @@ class ModelCheckpoint:
         """ Initialize the ModelCheckpoint
         """
         self.base_path = f"models/{model_name}"
-        if not os.path.exists(self.base_path):
-            os.makedirs(self.base_path)
+        Path(self.base_path).mkdir(parents=True, exist_ok=True)
 
     def save(self, model, optimizer, epoch, batch_index, loss):
         """
@@ -33,7 +34,7 @@ class ModelCheckpoint:
         """
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         save_path = f"{self.base_path}/{timestamp}"
-        os.makedirs(save_path, exist_ok=True)
+        Path(save_path).mkdir(parents=True, exist_ok=True)
         filename = f"{save_path}/Checkpoint.ckpt"
 
         state = {
@@ -44,23 +45,22 @@ class ModelCheckpoint:
             'loss': loss
         }
         torch.save(state, filename)
-        print(f"Checkpoint salvo em {filename}")
+        print(f"Checkpoint saved in {filename}")
 
-    
     def resume(self, model, optimizer):
         """
-            Loads the state of the model and optimizer from a checkpoint file and returns the epoch, batch index, and loss.
-            Args:
-                model (torch.nn.Module): The model to be loaded.
-                optimizer (torch.optim.Optimizer): The optimizer to be loaded.
-            Returns:
-                start_epoch (int): The epoch from the checkpoint.
-                start_batch_index (int): The batch index from the checkpoint.
-                loss (float): The loss from the checkpoint.
+        Loads the state of the model and optimizer from a checkpoint file and returns the epoch, batch index, and loss.
+        Args:
+            model (torch.nn.Module): The model to be loaded.
+            optimizer (torch.optim.Optimizer): The optimizer to be loaded.
+        Returns:
+            start_epoch (int): The epoch from the checkpoint.
+            start_batch_index (int): The batch index from the checkpoint.
+            loss (float): The loss from the checkpoint.
         """
         latest_checkpoint = self.__find_latest_checkpoint()
         if latest_checkpoint:
-            print(f"Retomando do checkpoint: {latest_checkpoint}")
+            print(f"Resuming checkpoint: {latest_checkpoint}")
             try:
                 checkpoint = torch.load(latest_checkpoint)
                 model.load_state_dict(checkpoint['state_dict'])
@@ -70,15 +70,22 @@ class ModelCheckpoint:
                 loss = checkpoint.get('loss')
                 return start_epoch, start_batch_index, loss
             except Exception as e:
-                print(f"Erro ao carregar o checkpoint: {e}")
+                print(f"Failed to load checkpoint: {e}")
                 return 0, 0, None
         else:
-            print("Nenhum checkpoint encontrado.")
+            print("No checkpoints found.")
             return 0, 0, None
 
     def __find_latest_checkpoint(self):
-        all_checkpoints = [os.path.join(dirpath, f) 
-                           for dirpath, dirnames, files in os.walk(self.base_path) 
+        """
+        Finds the latest checkpoint file in the base directory.
+
+        Returns:
+            The path to the latest checkpoint file, or None if no checkpoint files are found.
+        """
+
+        all_checkpoints = [os.path.join(dirpath, f)
+                           for dirpath, dirnames, files in os.walk(self.base_path)
                            for f in files if f.endswith('.ckpt')]
         if all_checkpoints:
             return max(all_checkpoints, key=os.path.getmtime)
