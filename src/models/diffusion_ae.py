@@ -63,28 +63,3 @@ class DiffusionAE(BaseModel, pl.LightningModule):
             pl.loggers.TensorBoardLogger: The logger for training.
         """
         return pl.loggers.TensorBoardLogger(self.log_dir)
-
-    def encode(self, audio):
-        """
-        Encodes audio data into a latent representation.
-
-        Args:
-            audio (torch.Tensor): The audio data to be encoded.
-
-        Returns:
-            torch.Tensor: The latent representation of the audio data.
-        """
-        return self.model.encode(audio)
-
-    def decode(self, latent, num_steps=100):
-        """
-        Decodes a latent representation into audio data.
-
-        Args:
-            latent (torch.Tensor): The latent representation to be decoded.
-            num_steps (int): The number of steps for the diffusion process. Defaults to 100.
-
-        Returns:
-            torch.Tensor: The decoded audio data.
-        """
-        return self.model.decode(latent, num_steps=num_steps)

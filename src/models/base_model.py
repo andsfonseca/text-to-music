@@ -48,3 +48,13 @@ class BaseModel:
             Path(self.run_dir).mkdir(exist_ok=True, parents=True)
 
         return self.run_dir
+
+    def set_run_folder(self, folder):
+        """
+        Defines the path to the run folder.
+
+        Args:
+            folder (str): The new path of run folder.
+
+        """
+        self.run_dir = folder
