@@ -15,8 +15,8 @@ class DataModule(pl.LightningDataModule):
 
     Args:
         preprocessor (PreProcessor): The PreProcessor
-        path (function): The path to save the preprocessed data
-        batch_size (function): The batch size.
+        path (str): The path to save the preprocessed data
+        batch_size (int): The batch size.
         transformation (function): The function that will be applied to the dataset.
     """
 
