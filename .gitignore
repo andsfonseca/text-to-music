@@ -13,6 +13,9 @@ data/*
 models/*
 !models/.gitkeep
 
+#Temporary files
+ddp.share
+
 # IDE
 .vscode/
 
