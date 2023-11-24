@@ -1,6 +1,7 @@
 from datasets.arrow_dataset import Dataset
-
 import torch
+
+from ...utils.gpu.create_device import create_device
 
 
 class Extractor(torch.utils.data.Dataset):
@@ -25,8 +26,7 @@ class Extractor(torch.utils.data.Dataset):
         self.column = column
 
         # Define the device
-        self.device = torch.device(
-            'cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = create_device()
 
     def __len__(self):
         return len(self.dataset)

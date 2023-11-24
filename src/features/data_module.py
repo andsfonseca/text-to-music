@@ -14,37 +14,56 @@ class DataModule(pl.LightningDataModule):
     This is the recommended approach to use with ddp instances
 
     Args:
-        preprocessor (PreProcessor): The PreProcessor
+        preprocessor (list[PreProcessor] | PreProcessor): A list of PreProcessor
         path (str): The path to save the preprocessed data
         batch_size (int): The batch size.
-        transformation (function): The function that will be applied to the dataset.
+        transformation (function | list[function]): The function that will be applied to the dataset.
     """
 
-    def __init__(self, preprocessor: PreProcessor, path: str, batch_size : int, transformation = None):
+    def __init__(self, preprocessors: list[PreProcessor] | PreProcessor, path: str, batch_size: int, transformations: list = None):
         super().__init__()
-        self.preprocessor = preprocessor
+        
+        if (type(preprocessors) != list):
+            preprocessors = [preprocessors]
+
+        if (type(transformations) != list):
+            transformations = [transformations]
+
+        self.preprocessors = preprocessors
         self.path = path
         self.batch_size = batch_size
-        self.transformation = transformation
+        self.transformation = transformations
 
     def prepare_data(self):
-        self.preprocessor.get_train_test_split(
-            path=self.path,
-            save_split_sets=True)
+        for preprocessor in self.preprocessors:
+            preprocessor.get_train_test_split(
+                path=self.path,
+                save_split_sets=True)
 
     def setup(self, stage=None):
-        train, test = self.preprocessor.get_train_test_split(
-            path=self.path,
-            save_split_sets=False,
-            verbose=False)
 
-        self.train_dataset = TorchDataset(
-            train, transform=self.transformation)
-        self.test_dataset = TorchDataset(
-            test, transform=self.transformation)
+        self.train_datasets = []
+        self.test_datasets = []
+
+        for i, preprocessor in enumerate(self.preprocessors):
+            train, test = preprocessor.get_train_test_split(
+                path=self.path,
+                save_split_sets=False,
+                verbose=False)
+
+            self.train_datasets.append(TorchDataset(
+                train, transform=self.transformation[i]))
+            self.test_datasets.append(TorchDataset(
+                test, transform=self.transformation[i]))
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size)
+        if len(self.preprocessors) == 1:
+            return DataLoader(self.train_datasets[0], batch_size=self.batch_size)
+        else:
+            return [DataLoader(dataset, batch_size=self.batch_size) for dataset in self.train_datasets]
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size)
+        if len(self.preprocessors) == 1:
+            return DataLoader(self.test_datasets[0], batch_size=self.batch_size)
+        else:
+            return [DataLoader(dataset, batch_size=self.batch_size) for dataset in self.test_datasets]

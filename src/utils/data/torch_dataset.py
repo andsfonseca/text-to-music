@@ -21,7 +21,7 @@ class TorchDataset(Dataset):
         """
 
         # Convert the data to a torch tensor
-        if isinstance(data, np.ndarray):
+        if isinstance(data, np.ndarray) and not data.dtype.kind in ['U', 'S']:
             data = torch.from_numpy(data)
 
         self.data = data

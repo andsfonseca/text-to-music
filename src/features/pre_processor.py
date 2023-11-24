@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 from datasets.arrow_dataset import Dataset
 
+from ..utils.gpu import create_device
 
 class PreProcessor():
     """
@@ -26,8 +27,7 @@ class PreProcessor():
         Initializes a new PreProcessor.
         """
 
-        self.device = torch.device(
-            'cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = create_device()
 
         self.dataset = dataset
         self.transformation = transformation_function
@@ -92,13 +92,12 @@ class PreProcessor():
 
             train_subset = Subset(transformed_data, train_idx if type(
                 train_idx) == list else train_idx.tolist())
-            train_data = np.array([data.to(self.device).cpu().numpy() for data in tqdm(
-                train_subset, desc=f"Generating train subset [{transformed_data.name}]", disable=not verbose)])
+            train_data = self.__create_subset(train_subset, transformed_data.name, verbose=verbose)
 
             test_subset = Subset(transformed_data, test_idx if type(
-                test_idx) == list else test_idx.tolist())
-            test_data = np.array([data.to(self.device).cpu().numpy() for data in tqdm(
-                test_subset, desc=f"Generating test subset [{transformed_data.name}]", disable=not verbose)])
+                test_idx) == list else test_idx.tolist())            
+            test_data = self.__create_subset(test_subset, transformed_data.name, verbose=verbose)
+
 
             if (len(path) != 0 and save_split_sets):
                 if verbose:
@@ -116,3 +115,23 @@ class PreProcessor():
             test_data = np.load(test_subset_path.absolute())
 
         return train_data, test_data
+
+    def __create_subset(self, subset, description, verbose = True):
+        """
+        Converts a Subset object into a numpy array.
+
+        Args:
+            subset (Subset): The Subset object to be converted.
+            name (str): The name of the dataset.
+            verbose (bool): Enable show messages of the process. Defaults to True.
+
+        Returns:
+            The converted subset.
+        """
+        result_data = []
+        for data in tqdm(subset , desc=f"Generating train subset [{description}]", disable=not verbose):
+            if torch.is_tensor(data):
+                result_data.append(data.to(self.device).cpu().numpy())
+            else:
+                result_data.append(data)
+        return result_data
