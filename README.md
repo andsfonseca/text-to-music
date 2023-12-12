@@ -1,7 +1,6 @@
 # text-to-music
 
-This repository displays a reproduction of the article [Moûsai: Text-to-Music Generation with Long-Context Latent Diffusion](https://arxiv.org/pdf/2301.11757v3.pdf) with some changes. The results were presented in **Topics in Data Science III – Hands on 
-Machine Learning Project for Music Generation** classroom presented by the teacher Hélio Lopes.
+This repository displays a reproduction of the article [Moûsai: Text-to-Music Generation with Long-Context Latent Diffusion](https://arxiv.org/pdf/2301.11757v3.pdf) with some changes. The results were presented in **Topics in Data Science III – Hands on Machine Learning Project for Music Generation** classroom presented by the teacher Hélio Lopes.
 
 ## What is?
 
