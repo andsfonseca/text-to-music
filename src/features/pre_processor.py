@@ -106,7 +106,9 @@ class PreProcessor():
                 train_subset_path.parent.mkdir(exist_ok=True, parents=True)
                 np.save(train_subset_path.absolute(), train_data)
                 np.save(test_subset_path.absolute(), test_data)
-
+            
+            train_data = np.array(train_data)
+            test_data = np.array(test_data)
         else:
             if verbose:
                 print("Loading train/test splits...")
